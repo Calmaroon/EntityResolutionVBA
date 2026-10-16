@@ -1,0 +1,3 @@
+# VBA editor import needs CRLF line endings; store .bas/.cls exactly as committed
+*.bas -text
+*.cls -text
