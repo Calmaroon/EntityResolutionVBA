@@ -86,6 +86,12 @@ Private Sub ResolveTests()
     r = ER_Resolve(Array("John Q Smith", "John Smith", "John R Smith"))
     CheckS "Resolve no chaining", JoinResult(r), "1,1,2"
 
+    ' Surnames that sound alike but are spelled differently from the first letters
+    r = ER_Resolve(Array("Catherine Thompson", "Katherine Tomson", "Kathy Thompson"))
+    CheckS "Resolve sound-alike surnames", JoinResult(r), "1,1,1"
+    r = ER_Resolve(Array("Ann Chang", "Anne Zhang"))
+    CheckS "Resolve wrong first letter", JoinResult(r), "1,1"
+
     ' Same name, different dates of birth: two people
     names = Array("John Smith", "Jon Smith", "John Smith", "Johnny Smith")
     dobs = Array("1980-01-01", "", "1975-06-30", "1975-06-30")

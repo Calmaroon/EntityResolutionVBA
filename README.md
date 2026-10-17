@@ -112,7 +112,7 @@ End Sub
 
 Dates of birth can be dates, `"YYYY-MM-DD"` text or `YYYYMMDD` numbers; other date text is read with your system's date format. A swapped day/month or a single wrong digit doesn't count as a conflict, but it gets no bonus either. A record with no date of birth is matched on its name alone, so if two people share that name it joins whichever group is linked first; review such rows. IDs (SSN, email, employee number…) are compared ignoring case and spaces.
 
-With `Blocking` on (the default), only records whose surnames sound alike, start with the same 3 letters, or share an ID are compared. This keeps large lists fast. Records that share a common surname are still compared with each other, so time grows with the square of the largest such group. Turn `Blocking` off to compare every pair.
+With `Blocking` on (the default), only records whose surnames sound alike, share their first 3 letters or letters 2–4 (catching a wrong first letter, as in Chang / Zhang), start with the same sounds, or share an ID are compared. This keeps large lists fast. Records that share a common surname are still compared with each other, so time grows with the square of the largest such group. Turn `Blocking` off to compare every pair.
 
 ### Limitations
 - A surname change (e.g. after marriage) only matches when an ID links the records.

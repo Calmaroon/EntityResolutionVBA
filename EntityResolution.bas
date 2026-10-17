@@ -51,6 +51,7 @@ Private Const BONUS_MIDDLE_FULL As Double = 0.03
 Private Const BONUS_MIDDLE_INITIAL As Double = 0.01
 Private Const BONUS_DOB As Double = 0.05
 Private Const MIN_SOUNDS_JW As Double = 0.8
+Private Const BLOCK_PASSES As Long = 5
 Private Const MIN_EDITEX_JW As Double = 0.85
 Private Const MIN_EDITEX As Double = 0.75
 
@@ -92,9 +93,10 @@ Private mGroupsLoaded As Boolean
 '               YYYYMMDD numbers for DOBs; any text for IDs (compared exactly,
 '               ignoring case and spaces). Blank values are simply ignored.
 '   Threshold   Minimum score (0..1) to link two records. Default 0.85.
-'   Blocking    True (default) only compares records whose surnames sound alike
-'               or share the first 3 letters, or that share an ID. Much faster
-'               on big lists; False compares every pair.
+'   Blocking    True (default) only compares records whose surnames sound alike,
+'               share the first 3 letters or letters 2-4, start with the same
+'               sounds as well as the first names, or that share an ID. Much faster on big lists;
+'               False compares every pair.
 '   ReturnNames True returns, instead of numbers, the fullest name in each
 '               group (e.g. "John Quincy Smith" for all three Johns).
 '
@@ -145,8 +147,8 @@ Public Function ER_Resolve(ByVal Names As Variant, _
     ReDim eA(1 To 16): ReDim eB(1 To 16): ReDim eScore(1 To 16)
     If Blocking Then
         Dim keys() As String, allKeys() As String
-        ReDim keys(1 To n): ReDim allKeys(1 To n, 1 To 3)
-        For k = 1 To 3
+        ReDim keys(1 To n): ReDim allKeys(1 To n, 1 To BLOCK_PASSES)
+        For k = 1 To BLOCK_PASSES
             For i = 1 To n
                 keys(i) = BlockKey(recs(i), k)
                 allKeys(i, k) = keys(i)
@@ -754,6 +756,10 @@ End Function
 '-------------------------------------------------------------------------------
 
 ' Pass 1: how the surname sounds. Pass 2: its first 3 letters. Pass 3: the ID.
+' Pass 4: the first two sounds of the surname and first sound of the first name
+' (Catherine Thompson / Katherine Tomson differ in passes 1 and 2).
+' Pass 5: letters 2-4 of the surname and the first initial, for a wrong first
+' letter (Ann Chang / Anne Zhang).
 Private Function BlockKey(r As ERRecord, ByVal pass As Long) As String
     If r.Blank Then Exit Function
     Select Case pass
@@ -766,6 +772,14 @@ Private Function BlockKey(r As ERRecord, ByVal pass As Long) As String
             BlockKey = Left$(r.LastName, 3)
         Case 3
             BlockKey = r.ID
+        Case 4
+            If r.LastName <> "" And r.FirstName <> "" Then
+                BlockKey = Left$(Split(r.LastCode, ";")(0), 2) & "|" & Left$(Split(r.FirstCode, ";")(0), 1)
+            End If
+        Case 5
+            If Len(r.LastName) >= 4 And r.FirstName <> "" Then
+                BlockKey = Mid$(r.LastName, 2, 3) & "|" & Left$(r.FirstName, 1)
+            End If
     End Select
 End Function
 
